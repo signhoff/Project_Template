@@ -1,0 +1,161 @@
+Setting up a VN
+1) new terminal
+
+2) create a new virtual environment
+	python -m venv venv
+
+3) override VS Code safety
+	Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+Activate new environment 
+	.\venv\Scripts\Activate.ps1
+
+4) install TWS API
+	python -m pip install --upgrade "C:\TWS API\source\pythonclient\dist\ibapi-10.30.1-py3-none-any.whl"
+
+5) install necessary libraries 
+	python -m pip install -r requirements.txt
+
+6) Configure VS Code to Use the Project's Virtual Environment
+	Ctrl+Shift+P
+	Python: Select Interpreter
+	projects venv folder -> .\venv\Scripts\python.exe
+
+
+Github Instructions
+Of course. It's an excellent idea to have a reference guide. Here is a set of instructions you can save for 
+future use, covering both creating new projects and updating existing ones.
+
+-----
+
+## Your Personal Git & GitHub Workflow Guide
+
+Here are the standard command-line steps for managing your projects with Git and GitHub.
+
+### **Part 1: How to Upload a Brand New Project to GitHub**
+
+Use these steps when you have a project folder on your computer that you want to put on GitHub for the first time.
+
+**Prerequisites:**
+
+  * A folder on your computer containing your new project.
+  * The terminal or command line (like PowerShell).
+  * [Git](https://git-scm.com/downloads) and the [GitHub CLI (`gh`)]
+(https://www.google.com/search?q=%5Bhttps://cli.github.com/%5D\(https://cli.github.com/\)) are installed and configured.
+
+-----
+
+**Step 1: Navigate into Your Project Folder**
+
+All commands must be run from inside your project's root folder.
+
+```bash
+# Replace with the actual path to your project
+cd /path/to/your/new-project
+```
+
+**Step 2: Initialize Git and Make Your First "Commit"**
+
+This prepares your folder for Git and saves the initial version of all your files.
+
+```bash
+# 1. Initializes an empty Git repository in your folder
+git init
+
+# 2. Stages all files in the current directory for the commit
+git add .
+
+# 3. Saves the files to the local Git history
+git commit -m "Initial commit"
+```
+
+**Step 3: Create the GitHub Repository and Push**
+
+This single command uses the GitHub CLI to create the repository on GitHub.com and upload your files.
+
+```bash
+gh repo create
+```
+
+This command will ask you a few questions. The standard answers are:
+
+  * **Repository name:** Press `Enter` to use your folder's name.
+  * **Description:** (Optional) Type a short description.
+  * **Visibility:** Choose `Public` or `Private`.
+  * **Would you like to add a remote and push the committed changes?** Answer `Yes`.
+
+After this step, your new project is live on GitHub\!
+
+> **First-Time Setup Note:** If you ever get an `Author identity unknown` error after the `git commit` command,
+run these two commands one time to set up your identity, then try the `git commit` command again:
+> `git config --global user.name "YourGitHubUsername"`
+> `git config --global user.email "your_email_for_github@example.com"`
+
+-----
+
+-----
+
+### **Part 2: How to Push Updates to an Existing Project**
+
+Use these steps whenever you've made changes to a project that is already on GitHub and you want to upload those 
+changes.
+
+**Prerequisites:**
+
+  * You have made and saved changes to files in your local project folder.
+
+-----
+
+**Step 1: Navigate into Your Project Folder**
+
+```bash
+# Replace with the actual path to your project
+cd /path/to/your/existing-project
+```
+
+**Step 2: Check the Status of Your Changes**
+
+This is the most common command you'll use. It shows you which files you have modified, added, or deleted.
+
+```bash
+git status
+```
+
+  * Files in **red** are changes that have not yet been prepared ("staged") for the next commit.
+
+**Step 3: Add Your Changes to the Staging Area**
+
+You need to tell Git exactly which changes you want to include in the next update.
+
+```bash
+# To add ALL changes you've made:
+git add .
+
+# OR, to add changes from a specific file only:
+git add path/to/your/file.py
+```
+
+After running `git add`, if you run `git status` again, you'll see the files have turned **green**. This means
+they are "staged" and ready to be committed.
+
+**Step 4: Commit Your Staged Changes**
+
+Bundle your staged changes into a "commit" with a clear message describing what you did.
+
+```bash
+# Write a clear, descriptive message inside the quotes
+git commit -m "Add new feature for user profiles"
+```
+
+*Good commit messages are very helpful\! Examples: "Fix bug on the login page", "Update documentation for API",
+"Add historical data for 2024".*
+
+**Step 5: Push Your Commit to GitHub**
+
+This sends all of your new, committed changes from your local computer up to your GitHub repository.
+
+```bash
+git push
+```
+
+That's it\! Because you used `gh repo create` or `git push -u origin main/master` during the initial setup,
+Git already knows where to send the files. After the push is complete, your changes will be visible on GitHub.
