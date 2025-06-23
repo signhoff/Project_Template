@@ -10,16 +10,8 @@ from ibapi.common import BarData, TickAttrib
 from ibapi.contract import Contract, ContractDetails # <-- Added Contract
 from ibapi.ticktype import TickTypeEnum
 
-# Logger for this module
+# Logger for this module - will now inherit the central configuration
 logger = logging.getLogger(__name__)
-if not logger.hasHandlers():
-    # Basic handler setup, assuming main application might configure logging more globally.
-    handler = logging.StreamHandler() # Use sys.stdout if preferred and sys is imported
-    formatter = logging.Formatter('%(asctime)s - %(name)s (IBKRAPIWrapper) - %(levelname)s - %(message)s') # Clarified logger name
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO) # Default level
-    logger.propagate = False # Avoid duplicate logs if root logger is also configured
 
 class IBKRApiError(Exception):
     """Custom exception for API errors."""

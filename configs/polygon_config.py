@@ -3,18 +3,8 @@ import os
 import logging
 from dotenv import load_dotenv
 
-# --- Logger Setup ---
-# This helps confirm that the environment variables are being loaded correctly.
+# Logger for this module - will now inherit the central configuration
 logger = logging.getLogger(__name__)
-if not logger.hasHandlers():
-    # Basic configuration to ensure logs are visible
-    import sys
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s (Polygon_Config) - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-    logger.propagate = False
 
 # --- Load Environment Variables ---
 # Construct the path to the .env file which is in the project root (one level up from 'configs')

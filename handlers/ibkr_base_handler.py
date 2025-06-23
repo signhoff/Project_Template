@@ -1,12 +1,9 @@
 # handlers/ibkr_base_handler.py
-
 import threading
 import time
 import logging
 import asyncio
 from typing import List, Dict, Any, Optional, Union, Callable 
-
-import sys 
 
 from ibapi.client import EClient
 from ibapi.contract import Contract, ContractDetails
@@ -15,15 +12,8 @@ from ibapi.order import Order
 
 from handlers.ibkr_api_wrapper import IBKROfficialAPIWrapper, IBKRApiError
 
-# Logger for this module
-logger = logging.getLogger(__name__) 
-if not logger.hasHandlers():
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s (IBKRBaseHandler) - %(levelname)s - %(message)s') 
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-    logger.propagate = False
+# Logger for this module - now configured centrally
+logger = logging.getLogger(__name__)
 
 class IBKRBaseHandler:
     def __init__(self, status_callback: Optional[Callable[[Dict[str, Any]], None]] = None):

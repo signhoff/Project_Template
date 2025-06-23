@@ -6,20 +6,10 @@ import numpy as np
 from scipy.stats import norm
 from scipy.optimize import brentq # For implied volatility calculation
 import logging
-import sys
 from typing import List, Dict, Any, Optional, Callable
 
-# Logger for this module
-logger_fc = logging.getLogger(__name__)
-if not logger_fc.hasHandlers():
-    handler_fc = logging.StreamHandler(sys.stdout)
-    # Added module name to logger for clarity in combined logs
-    formatter_fc = logging.Formatter('%(asctime)s - %(name)s (financial_calculations) - %(levelname)s - %(message)s')
-    handler_fc.setFormatter(formatter_fc)
-    logger_fc.addHandler(handler_fc)
-    logger_fc.setLevel(logging.INFO)
-    logger_fc.propagate = False
-
+# Logger for this module - will now inherit the central configuration
+logger = logging.getLogger(__name__)
 
 def black_scholes_price(S: float, K: float, T: float, r: float, sigma: float, option_type: str = "call") -> float:
     """
@@ -40,39 +30,39 @@ def black_scholes_price(S: float, K: float, T: float, r: float, sigma: float, op
         # Ensure all inputs are floats for calculation
         S, K, T, r, sigma = float(S), float(K), float(T), float(r), float(sigma)
     except ValueError:
-        logger_fc.warning(f"BS Price Error: Non-numeric input. S={S}, K={K}, T={T}, r={r}, sigma={sigma}")
+        logger.warning(f"BS Price Error: Non-numeric input. S={S}, K={K}, T={T}, r={r}, sigma={sigma}")
         return np.nan
 
     opt_type_lower = option_type.lower()
 
     # Handle edge case: Time to expiration is zero or negligible
     if T <= 1e-9:
-        logger_fc.debug(f"BS Price Info: T near zero ({T:.2e}). Returning intrinsic value. S={S}, K={K}")
+        logger.debug(f"BS Price Info: T near zero ({T:.2e}). Returning intrinsic value. S={S}, K={K}")
         return max(0.0, S - K) if opt_type_lower in ["call", "c"] else max(0.0, K - S)
 
     # Handle edge case: Volatility is zero or negligible
     if sigma <= 1e-9:
-        logger_fc.debug(f"BS Price Info: Sigma near zero ({sigma:.2e}). Returning discounted intrinsic. S={S}, K={K}, T={T}")
+        logger.debug(f"BS Price Info: Sigma near zero ({sigma:.2e}). Returning discounted intrinsic. S={S}, K={K}, T={T}")
         if opt_type_lower in ["call", "c"]:
             return max(0.0, S - K * np.exp(-r * T))
         elif opt_type_lower in ["put", "p"]:
             return max(0.0, K * np.exp(-r * T) - S)
         else:
-            logger_fc.error(f"BS Price Error (sigma=0): Invalid option type. Original: '{option_type}'.")
+            logger.error(f"BS Price Error (sigma=0): Invalid option type. Original: '{option_type}'.")
             return np.nan
 
     # Handle edge cases for stock price or strike price being zero or negative
     if S <= 1e-9: # Stock price is zero or negative
-        logger_fc.debug(f"BS Price Info: S near zero ({S:.2e}). K={K}, T={T}")
+        logger.debug(f"BS Price Info: S near zero ({S:.2e}). K={K}, T={T}")
         return K * np.exp(-r * T) if opt_type_lower in ["put", "p"] else 0.0
     if K <= 1e-9: # Strike price is zero or negative
-        logger_fc.debug(f"BS Price Info: K near zero ({K:.2e}). S={S}, T={T}")
+        logger.debug(f"BS Price Info: K near zero ({K:.2e}). S={S}, T={T}")
         return S if opt_type_lower in ["call", "c"] else 0.0
 
 
     d1_denominator = sigma * np.sqrt(T)
     if abs(d1_denominator) < 1e-9:
-        logger_fc.warning(f"BS Price Warning: d1_denominator (sigma*sqrt(T)) near zero: {d1_denominator}. S={S}, K={K}, T={T}, sigma={sigma}. Returning intrinsic.")
+        logger.warning(f"BS Price Warning: d1_denominator (sigma*sqrt(T)) near zero: {d1_denominator}. S={S}, K={K}, T={T}, sigma={sigma}. Returning intrinsic.")
         return max(0.0, S - K) if opt_type_lower in ["call", "c"] else max(0.0, K - S)
 
     d1_val = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / d1_denominator
@@ -83,7 +73,7 @@ def black_scholes_price(S: float, K: float, T: float, r: float, sigma: float, op
     elif opt_type_lower == "put" or opt_type_lower == "p":
         price = K * np.exp(-r * T) * norm.cdf(-d2_val) - S * norm.cdf(-d1_val)
     else:
-        logger_fc.error(f"BS Price Error: Invalid option type. Original input: '{option_type}'.")
+        logger.error(f"BS Price Error: Invalid option type. Original input: '{option_type}'.")
         return np.nan
 
     return max(0.0, price) # Ensure price is not negative
@@ -109,20 +99,20 @@ def implied_volatility(option_price: float, S: float, K: float, T: float, r: flo
         The implied volatility, or np.nan if calculation fails.
     """
     if T <= 1e-9: # Time to expiration is zero or negative
-        logger_fc.debug(f"IV Warning: Time to expiration is zero or negative (T={T:.2e}). S={S}, K={K}, Px={option_price}. Returning NaN.")
+        logger.debug(f"IV Warning: Time to expiration is zero or negative (T={T:.2e}). S={S}, K={K}, Px={option_price}. Returning NaN.")
         return np.nan
 
     is_call = option_type.lower() in ["call", "c"]
     is_put = option_type.lower() in ["put", "p"]
 
     if not (is_call or is_put):
-        logger_fc.error(f"IV Error: Invalid option_type '{option_type}' passed to implied_volatility.")
+        logger.error(f"IV Error: Invalid option_type '{option_type}' passed to implied_volatility.")
         return np.nan
 
     # If option price is very low for an OTM option, IV is likely very low.
     if option_price < tol: # Using tol as a threshold for "near zero" price
         if (is_call and S < K) or (is_put and S > K): # Out-of-the-money
-             logger_fc.debug(f"IV Info: OTM option price is near zero ({option_price:.4f}). S={S}, K={K}, T={T:.4f}. Returning low_vol ({low_vol}).")
+             logger.debug(f"IV Info: OTM option price is near zero ({option_price:.4f}). S={S}, K={K}, T={T:.4f}. Returning low_vol ({low_vol}).")
              return low_vol
 
     opt_type_normalized = "call" if is_call else "put"
@@ -138,12 +128,12 @@ def implied_volatility(option_price: float, S: float, K: float, T: float, r: flo
         if opt_type_normalized == "call":
             intrinsic_discounted = max(0.0, S - K * np.exp(-r * T))
             if option_price < intrinsic_discounted - tol: # Allow for small tolerance
-                logger_fc.warning(f"IV Warning (Call): Price {option_price:.4f} < Discounted Intrinsic {intrinsic_discounted:.4f}. S={S}, K={K}, T={T:.4f}, r={r}. Returning low_vol.")
+                logger.warning(f"IV Warning (Call): Price {option_price:.4f} < Discounted Intrinsic {intrinsic_discounted:.4f}. S={S}, K={K}, T={T:.4f}, r={r}. Returning low_vol.")
                 return low_vol
         else: # Put option
             intrinsic_discounted = max(0.0, K * np.exp(-r * T) - S)
             if option_price < intrinsic_discounted - tol:
-                logger_fc.warning(f"IV Warning (Put): Price {option_price:.4f} < Discounted Intrinsic {intrinsic_discounted:.4f}. S={S}, K={K}, T={T:.4f}, r={r}. Returning low_vol.")
+                logger.warning(f"IV Warning (Put): Price {option_price:.4f} < Discounted Intrinsic {intrinsic_discounted:.4f}. S={S}, K={K}, T={T:.4f}, r={r}. Returning low_vol.")
                 return low_vol
 
         # Evaluate objective function at the bounds
@@ -152,16 +142,16 @@ def implied_volatility(option_price: float, S: float, K: float, T: float, r: flo
 
         # If root is already at one of the bounds
         if abs(val_at_low_vol) < tol:
-            logger_fc.debug(f"IV Info: Root found near low_vol ({low_vol}). S={S}, K={K}, T={T:.4f}, Px={option_price}")
+            logger.debug(f"IV Info: Root found near low_vol ({low_vol}). S={S}, K={K}, T={T:.4f}, Px={option_price}")
             return low_vol
         if abs(val_at_high_vol) < tol:
-            logger_fc.debug(f"IV Info: Root found near high_vol ({high_vol}). S={S}, K={K}, T={T:.4f}, Px={option_price}")
+            logger.debug(f"IV Info: Root found near high_vol ({high_vol}). S={S}, K={K}, T={T:.4f}, Px={option_price}")
             return high_vol
 
         # If objective function has the same sign at both bounds, Brent's method may fail.
         # This can happen if the option price is outside the range achievable by varying IV within [low_vol, high_vol].
         if val_at_low_vol * val_at_high_vol > 0:
-            logger_fc.warning(
+            logger.warning(
                 f"IV Solver Issue: Objective function has same sign at bounds [{low_vol}, {high_vol}]. "
                 f"Params: OptPx={option_price:.4f}, S={S:.2f}, K={K:.2f}, T={T:.4f}, r={r:.4f}, Type={opt_type_normalized}. "
                 f"f(low_vol={low_vol})={val_at_low_vol:.4f}, f(high_vol={high_vol})={val_at_high_vol:.4f}"
@@ -173,22 +163,22 @@ def implied_volatility(option_price: float, S: float, K: float, T: float, r: flo
                     expanded_high_vol = original_high_vol * (2**i)
                     if expanded_high_vol > 10.0 : expanded_high_vol = 10.0 # Cap expansion to a very high IV
                     val_at_expanded_high = objective_function(expanded_high_vol)
-                    logger_fc.debug(f"IV Solver: Expanding high_vol to {expanded_high_vol:.2f}, f()={val_at_expanded_high:.4f}")
+                    logger.debug(f"IV Solver: Expanding high_vol to {expanded_high_vol:.2f}, f()={val_at_expanded_high:.4f}")
                     if val_at_low_vol * val_at_expanded_high < 0: # Found a bracket
                         high_vol = expanded_high_vol # Update high_vol for brentq
-                        logger_fc.info(f"IV Solver: Found bracket with expanded high_vol={high_vol:.2f}")
+                        logger.info(f"IV Solver: Found bracket with expanded high_vol={high_vol:.2f}")
                         break
                     if expanded_high_vol >= 10.0: break # Stop if max expansion reached
                 # Check again after expansion attempt
                 if val_at_low_vol * objective_function(high_vol) > 0:
-                    logger_fc.warning("IV Solver: Still same sign after expanding high_vol. Returning NaN.")
+                    logger.warning("IV Solver: Still same sign after expanding high_vol. Returning NaN.")
                     return np.nan
             # If market price is lower than BS price even at low_vol (val_at_low_vol > 0)
             elif val_at_low_vol > 0:
-                 logger_fc.warning(f"IV Solver: Market price {option_price:.4f} is below BS price at low_vol ({low_vol}). Returning low_vol.")
+                 logger.warning(f"IV Solver: Market price {option_price:.4f} is below BS price at low_vol ({low_vol}). Returning low_vol.")
                  return low_vol
             else: # Other unhandled same-sign cases
-                logger_fc.warning("IV Solver: Unhandled same-sign scenario. Returning NaN.")
+                logger.warning("IV Solver: Unhandled same-sign scenario. Returning NaN.")
                 return np.nan
 
         # Use Brent's method to find the root (implied volatility)
@@ -200,13 +190,13 @@ def implied_volatility(option_price: float, S: float, K: float, T: float, r: flo
         return iv
 
     except ValueError as e: # Error from brentq if bounds are invalid or other issues
-        logger_fc.error(f"IV Error (Brentq ValueError): {e} for Px={option_price}, S={S}, K={K}, T={T}, r={r}, Type={opt_type_normalized}")
+        logger.error(f"IV Error (Brentq ValueError): {e} for Px={option_price}, S={S}, K={K}, T={T}, r={r}, Type={opt_type_normalized}")
         return np.nan
     except RuntimeError as e: # Typically "failed to converge" from brentq
-        logger_fc.error(f"IV Error (Brentq RuntimeError - max_iter likely): {e} for Px={option_price}, S={S}, K={K}, T={T}, r={r}, Type={opt_type_normalized}")
+        logger.error(f"IV Error (Brentq RuntimeError - max_iter likely): {e} for Px={option_price}, S={S}, K={K}, T={T}, r={r}, Type={opt_type_normalized}")
         return np.nan
     except Exception as e_unhandled: # Catch any other unexpected errors
-        logger_fc.error(f"IV Error (Unhandled Exception): {e_unhandled} for Px={option_price}, S={S}, K={K}, T={T}, r={r}, Type={opt_type_normalized}", exc_info=True)
+        logger.error(f"IV Error (Unhandled Exception): {e_unhandled} for Px={option_price}, S={S}, K={K}, T={T}, r={r}, Type={opt_type_normalized}", exc_info=True)
         return np.nan
 
 
@@ -228,14 +218,14 @@ def calculate_time_to_expiration_in_years(expiration_date_str: str, valuation_da
     try:
         exp_date = datetime.datetime.strptime(expiration_date_str, "%Y-%m-%d").date()
     except ValueError:
-        logger_fc.error(f"TTE Error: Invalid expiration_date_str format: '{expiration_date_str}'. Expected YYYY-MM-DD.")
+        logger.error(f"TTE Error: Invalid expiration_date_str format: '{expiration_date_str}'. Expected YYYY-MM-DD.")
         raise 
 
     if valuation_date_str:
         try:
             val_date = datetime.datetime.strptime(valuation_date_str, "%Y-%m-%d").date()
         except ValueError:
-            logger_fc.error(f"TTE Error: Invalid valuation_date_str format: '{valuation_date_str}'. Expected YYYY-MM-DD.")
+            logger.error(f"TTE Error: Invalid valuation_date_str format: '{valuation_date_str}'. Expected YYYY-MM-DD.")
             raise
     else:
         val_date = datetime.date.today()
@@ -254,7 +244,7 @@ def _d1(S: float, K: float, T: float, r: float, sigma: float) -> float:
 
     d1_denominator_val = sigma * np.sqrt(T)
     if abs(d1_denominator_val) < 1e-9: # Avoid division by zero
-        logger_fc.warning(f"d1 calc: denominator sigma*np.sqrt(T) is near zero ({d1_denominator_val}). S={S}, K={K}, T={T}, sigma={sigma}")
+        logger.warning(f"d1 calc: denominator sigma*np.sqrt(T) is near zero ({d1_denominator_val}). S={S}, K={K}, T={T}, sigma={sigma}")
         return np.nan 
     return (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / d1_denominator_val
 
@@ -269,7 +259,7 @@ def _d2(S: float, K: float, T: float, r: float, sigma: float) -> float:
     # If sigma*sqrt(T) is extremely small, d2 is effectively d1.
     # This check avoids issues if d1 is large and sigma*sqrt(T) is ~0, which could lead to large d2.
     if abs(sigma_sqrt_T) < 1e-9 and abs(d1_val) > 1e-6 : # Check if d1 is significant
-         logger_fc.debug(f"d2 calc: sigma*sqrt(T) is near zero ({sigma_sqrt_T}) but d1 is not ({d1_val}). Returning d1 for d2.")
+         logger.debug(f"d2 calc: sigma*sqrt(T) is near zero ({sigma_sqrt_T}) but d1 is not ({d1_val}). Returning d1 for d2.")
          return d1_val # d2 approaches d1 as sigma*sqrt(T) approaches 0
     return d1_val - sigma_sqrt_T
 
@@ -293,12 +283,12 @@ def calculate_greeks(S: float, K: float, T: float, r: float, sigma: float, optio
     opt_type_lower = option_type.lower()
 
     if opt_type_lower not in ["call", "c", "put", "p"]:
-        logger_fc.error(f"Greeks Error: Invalid option_type '{option_type}'")
+        logger.error(f"Greeks Error: Invalid option_type '{option_type}'")
         return greeks
 
     # Handle At Expiration (T is very small)
     if T <= 1e-6:
-        logger_fc.debug(f"Greeks Info: T near zero ({T:.2e}). Calculating greeks at expiration. S={S}, K={K}")
+        logger.debug(f"Greeks Info: T near zero ({T:.2e}). Calculating greeks at expiration. S={S}, K={K}")
         if opt_type_lower in ["call", "c"]: 
             greeks['delta'] = 1.0 if S > K else (0.5 if S == K else 0.0)
         elif opt_type_lower in ["put", "p"]: 
@@ -312,7 +302,7 @@ def calculate_greeks(S: float, K: float, T: float, r: float, sigma: float, optio
 
     # Handle Zero Volatility (sigma is very small)
     if sigma <= 1e-6:
-        logger_fc.debug(f"Greeks Info: Sigma near zero ({sigma:.2e}). Calculating greeks for zero volatility. S={S}, K={K}, T={T}")
+        logger.debug(f"Greeks Info: Sigma near zero ({sigma:.2e}). Calculating greeks for zero volatility. S={S}, K={K}, T={T}")
         # Delta becomes a step function based on discounted intrinsic value
         discounted_K = K * np.exp(-r * T)
         if opt_type_lower in ["call", "c"]: 
@@ -330,7 +320,7 @@ def calculate_greeks(S: float, K: float, T: float, r: float, sigma: float, optio
     d2_val = _d2(S, K, T, r, sigma)
 
     if np.isnan(d1_val) or np.isnan(d2_val):
-        logger_fc.warning(f"Greeks Warning: d1 ({d1_val}) or d2 ({d2_val}) is NaN. S={S}, K={K}, T={T}, r={r}, sigma={sigma}. Cannot calculate greeks.")
+        logger.warning(f"Greeks Warning: d1 ({d1_val}) or d2 ({d2_val}) is NaN. S={S}, K={K}, T={T}, r={r}, sigma={sigma}. Cannot calculate greeks.")
         return greeks # Return dict with NaNs
 
     N_d1 = norm.cdf(d1_val)
@@ -349,7 +339,7 @@ def calculate_greeks(S: float, K: float, T: float, r: float, sigma: float, optio
         if abs(gamma_denominator) > 1e-9:
             greeks['gamma'] = n_d1 / gamma_denominator
         else:
-            logger_fc.warning(f"Greeks Warning (Gamma): Denominator S*sigma*sqrt(T) near zero ({gamma_denominator}). S={S}, sigma={sigma}, T={T}")
+            logger.warning(f"Greeks Warning (Gamma): Denominator S*sigma*sqrt(T) near zero ({gamma_denominator}). S={S}, sigma={sigma}, T={T}")
             # Gamma can be very large if ATM and denominator is small
             greeks['gamma'] = np.inf if n_d1 > 1e-9 else 0.0 
     else:
@@ -434,10 +424,10 @@ def generate_pl_profile_at_front_expiry(
             status_callback({"module": module_name_for_callback, "type": msg_type, "message": message})
         
         # Also log to module logger
-        if msg_type == "error": logger_fc.error(message)
-        elif msg_type == "warning": logger_fc.warning(message)
-        elif msg_type == "debug": logger_fc.debug(message)
-        else: logger_fc.info(message)
+        if msg_type == "error": logger.error(message)
+        elif msg_type == "warning": logger.warning(message)
+        elif msg_type == "debug": logger.debug(message)
+        else: logger.info(message)
 
     _log_status_fc("info", "Calculating P&L profile for spread strategy...")
 

@@ -4,6 +4,7 @@
 pandas
 numpy
 matplotlib
+scipy
 
 # Financial APIs & Data
 yfinance

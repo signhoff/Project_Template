@@ -10,14 +10,8 @@ from ibapi.common import BarData
 from handlers.ibkr_base_handler import IBKRBaseHandler
 from handlers.ibkr_api_wrapper import IBKRApiError 
 
-module_logger = logging.getLogger(__name__)
-if not module_logger.hasHandlers():
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s (IBKROptionHandler) - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    module_logger.addHandler(handler)
-    module_logger.setLevel(logging.INFO) 
-    module_logger.propagate = False
+# Logger for this module - will now inherit the central configuration
+logger = logging.getLogger(__name__)
 
 class IBKROptionHandler(IBKRBaseHandler):
     def __init__(self, status_callback: Optional[Callable[[Dict[str, Any]], None]] = None):

@@ -12,15 +12,8 @@ from ibapi.ticktype import TickTypeEnum # For parsing snapshot data
 from handlers.ibkr_base_handler import IBKRBaseHandler
 from handlers.ibkr_api_wrapper import IBKRApiError # For specific error handling
 
-# Logger for this module (e.g., "ibkr_stock_handler")
-module_logger = logging.getLogger(__name__)
-if not module_logger.hasHandlers():
-    handler = logging.StreamHandler(sys.stdout) # Use sys.stdout
-    formatter = logging.Formatter('%(asctime)s - %(name)s (IBKRStockHandler) - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    module_logger.addHandler(handler)
-    module_logger.setLevel(logging.INFO) # Default level for this module's logger
-    module_logger.propagate = False # Avoid duplicate logs if root logger is also configured
+# Logger for this module - will now inherit the central configuration
+logger = logging.getLogger(__name__)
 
 class IBKRStockHandler(IBKRBaseHandler):
     def __init__(self, status_callback: Optional[Callable[[Dict[str, Any]], None]] = None):
