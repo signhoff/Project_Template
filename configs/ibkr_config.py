@@ -13,5 +13,11 @@ IBKR_API_DELAY_SECONDS = 0.05
 IBKR_CONNECTION_TIMEOUT_SECONDS = 15
 IBKR_REQUEST_TIMEOUT_SECONDS = 45
 
+# Client IDs for main application components (e.g., GUI)
+# Ensure these are unique for each concurrent connection to IBKR.
+CLIENT_ID_GUI_STOCK = 101
+CLIENT_ID_GUI_OPTION = 102
+CLIENT_ID_GUI_GENERAL = 103  # If GUI needs another general purpose connection
+
 # --- Logging Configuration ---
 LOG_LEVEL = 'INFO'
