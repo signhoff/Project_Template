@@ -203,6 +203,16 @@ THIS MUST BE DONE IN WINDOWS POERSHELL
 
 Here are the standard command-line steps for managing your projects with Git and GitHub.
 
+Before you start:
+    See what remote repository your local project is currently pointing to by running
+      git remote -v
+    If applicable, remove the wrong remote link
+      git remote remove origin
+    Add the correct remote URL
+      git remote add origin https://github.com/signhoff/Quantitative_Momentum
+    Push to the correct repository
+      git push -u origin main
+
 ### **Part 1: How to Upload a Brand New Project to GitHub**
 
   Step 1: CD into the Project Folder
