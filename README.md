@@ -16,33 +16,33 @@ This repository serves as a professional, scalable template for quantitative fin
 
 ## Project Structure
 /
-├── configs/                # Configuration files for APIs and application settings
+├── configs/                   # Configuration files for APIs and application settings
 │   ├── ibkr_config.py
 │   └── polygon_config.py
-├── data/                   # Local cache for historical data (ignored by Git)
-├── handlers/               # Modules for interacting with external APIs
+├── data/                      # Local cache for historical data (ignored by Git)
+├── handlers/                  # Modules for interacting with external APIs
 │   ├── ibkr_api_wrapper.py
 │   ├── ibkr_base_handler.py
 │   ├── ibkr_option_handler.py
 │   ├── ibkr_stock_handler.py
 │   ├── polygon_api_handler_historical.py
 │   └── yfinance_handler.py
-├── tests/                  # Unit and integration tests
+├── tests/                     # Unit and integration tests
 │   ├── test_options_models.py
 │   └── test_performance_metrics.py
-├── utils/                  # Reusable, pure-logic utility functions
+├── utils/                     # Reusable, pure-logic utility functions
 │   ├── logging_config.py
 │   ├── options_models.py
 │   ├── performance_metrics.py
-│   └── plotting_utils.py
-│   └── polygon_utils.py
+│   ├── plotting_utils.py
+│   ├── polygon_utils.py
 │   └── financial_calculations.py
-├── .env                    # Local environment variables (API keys, etc.)
-├── .gitignore              # Specifies files for Git to ignore
-├── .python-version         # Specifies the python version for pyenv users
-├── data_manager.py         # Core class for managing data access and caching
-├── pyproject.toml          # Project metadata and dependencies
-└── requirements.txt        # List of Python package dependencies
+├── .env                       # Local environment variables (API keys, etc.)
+├── .gitignore                 # Specifies files for Git to ignore
+├── .python-version            # Specifies the python version for pyenv users
+├── data_manager.py            # Core class for managing data access and caching
+├── pyproject.toml             # Project metadata and dependencies
+└── requirements.txt           # List of Python package dependencies
 
 ---
 
@@ -317,10 +317,9 @@ git push
 
 Your new project is now set up correctly and any future work can be pushed directly to its own repository on GitHub.
 
-```
-```
+-----
 
-### **Part 1: How to Upload a Brand New Project to GitHub**
+### How to Upload a Brand New Project to GitHub**
 
   Step 1: CD into the Project Folder
     cd "C:\Users\17082\Documents\TWS_Projects\Project_Template\"
@@ -338,44 +337,84 @@ Your new project is now set up correctly and any future work can be pushed direc
 run these two commands one time to set up your identity, then try the `git commit` command again:***
   `git config --global user.name "YourGitHubUsername"`
   `git config --global user.email "your_email_for_github@example.com"`
+Of course, here is that text formatted in markdown.
 
-### **Part 2: Push Updates to an Existing Project**
+-----
 
-  Step 1: CD into Your Project Folder
-      cd "C:\Users\17082\Documents\TWS_Projects\Project_Template\"
+### **Push Updates to an Existing Project**
 
-  Step 2: Check the Status of Your Changes**
-    This is the most common command you'll use. It shows you which files you have modified, added, or deleted.
-    Files in **red** are changes that have not yet been prepared ("staged") for the next commit.
-      git status
-    
-  Step 3: Add Your Changes to the Staging Area
-  You need to tell Git exactly which changes you want to include in the next update.
+#### **Step 1: CD into Your Project Folder**
 
-    # To add ALL changes you've made:
-      git add .
+```bash
+cd "C:\Users\17082\Documents\TWS_Projects\Project_Template\"
+```
 
-    # OR, to add changes from a specific file only:
-      git add "C:\Users\17082\Documents\TWS_Projects\Project_Template\[folder/file name]"
+-----
 
-After running `git add`, if you run `git status` again, you'll see the files have turned **green**. This means
-they are "staged" and ready to be committed.
+#### **Step 2: Check the Status of Your Changes**
 
-  Step 4: Commit Your Staged Changes
-    Bundle your staged changes into a "commit" with a clear message describing what you did.
-    Write a clear, descriptive message inside the quotes
-      git commit -m "Add new feature for user profiles"
+This is the most common command you'll use. It shows you which files you have modified, added, or deleted. Files in **red** are changes that have not yet been prepared ("staged") for the next commit.
 
-*Good commit messages are very helpful\! Examples: "Fix bug on the login page", "Update documentation for API",
-"Add historical data for 2024".*
+```bash
+git status
+```
 
-  Step 5: Push Your Commit to GitHub
+-----
+
+#### **Step 3: Add Your Changes to the Staging Area**
+
+You need to tell Git exactly which changes you want to include in the next update.
+
+To add ALL changes you've made:
+
+```bash
+git add .
+```
+
+OR, to add changes from a specific file only:
+
+```bash
+git add "C:\Users\17082\Documents\TWS_Projects\Project_Template\[folder/file name]"
+```
+
+> After running `git add`, if you run `git status` again, you'll see the files have turned **green**. This means they are "staged" and ready to be committed.
+
+-----
+
+#### **Step 4: Commit Your Staged Changes**
+
+Bundle your staged changes into a "commit" with a clear message describing what you did. Write a clear, descriptive message inside the quotes.
+
+```bash
+git commit -m "Add new feature for user profiles"
+```
+
+> **Good commit messages are very helpful\!** Examples: "Fix bug on the login page", "Update documentation for API", "Add historical data for 2024".
+
+-----
+
+#### **Step 5: Push Your Commit to GitHub**
 
 This sends all of your new, committed changes from your local computer up to your GitHub repository.
-  git push
-  
+
+```bash
+git push
+```
+
+-----
+
+### **Additional Git Commands**
+
+```bash
+# Add a remote repository named "origin"
 git remote add origin https://github.com/signhoff/Project_Template.git
+
+# Rename the current branch to "main"
 git branch -M main
+
+# Push the "main" branch to the "origin" remote and set it as the upstream branch
 git push -u origin main
 
-git push origin main --force <- this will override everything watch out if you are using this
+# Force push to the "main" branch. Be very careful with this command as it will overwrite the remote history.
+git push origin main --force 
+```
