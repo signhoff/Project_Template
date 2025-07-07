@@ -196,22 +196,129 @@ This project uses `pytest`. To run all tests and ensure the core logic is workin
 pytest
 ```
 
-=========================================
-THIS MUST BE DONE IN WINDOWS POERSHELL
-=========================================
-## Your Personal Git & GitHub Workflow Guide
+## Git & GitHub Workflow Guide
 
-Here are the standard command-line steps for managing your projects with Git and GitHub.
+### Here are the standard command-line steps for managing your projects with Git and GitHub:
+See what remote repository your local project is currently pointing to by running:
+```bash
+git remote -v
+````
 
-Before you start:
-    See what remote repository your local project is currently pointing to by running
-      git remote -v
-    If applicable, remove the wrong remote link
-      git remote remove origin
-    Add the correct remote URL
-      git remote add origin https://github.com/signhoff/Quantitative_Momentum
-    Push to the correct repository
-      git push -u origin main
+If applicable, remove the wrong remote link:
+
+```bash
+git remote remove origin
+```
+
+Add the correct remote URL:
+
+```bash
+git remote add origin [https://github.com/signhoff/Quantitative_Momentum](https://github.com/signhoff/Quantitative_Momentum)
+```
+
+Push to the correct repository:
+
+```bash
+git push -u origin main
+```
+
+# Guide: Creating a New GitHub Project from a Template
+
+## Prerequisites: Install and Configure the GitHub CLI
+
+This workflow requires the GitHub CLI (`gh`). If you haven't already, you need to install and authenticate it.
+
+### Install the GitHub CLI
+
+Open your VS Code terminal and run the appropriate command for your operating system. For Windows, use Winget:
+
+```bash
+winget install --id GitHub.cli
+````
+
+### Authenticate with Your GitHub Account
+
+After installation, run the following command and follow the on-screen prompts to log in.
+
+```bash
+gh auth login
+```
+
+-----
+
+## Step-by-Step Instructions
+
+### Step 1: Navigate to Your Projects Directory
+
+Before creating the project, change your terminal's location to the exact folder where you want your new project to live.
+
+```bash
+cd C:\Users\17082\Documents\TWS_Projects
+```
+
+### Step 2: Create and Clone the Repository
+
+Use the `gh repo create` command to generate a new repository on GitHub from the template. The `--clone` flag will automatically download it into your current directory (`TWS_Projects`).
+
+```bash
+gh repo create your-new-project-name --template https://github.com/signhoff/Project_Template --public --clone
+```
+
+  - Replace `your-new-project-name` with the actual name for your new repository (e.g., `Quantitative-Momentum-V2`).
+  - You can change `--public` to `--private` if you wish to make the repository private.
+
+### Step 3: Open the Project in VS Code
+
+Once the command finishes, your new project folder will be ready.
+
+Navigate into the new project directory:
+
+```bash
+cd your-new-project-name
+```
+
+Open it in your current VS Code window:
+
+```bash
+code . -r
+```
+
+(The `-r` flag reuses the existing VS Code window. You can omit it to open a new window.)
+
+-----
+
+### Step 4: Make Changes and Push to GitHub
+
+You are now ready to work on your code. When you want to save your progress to GitHub, follow the standard Git workflow in the terminal.
+
+#### Stage Your Changes
+
+This command prepares all modified files for saving.
+
+```bash
+git add .
+```
+
+#### Commit Your Changes
+
+This command saves a snapshot of your work with a descriptive message.
+
+```bash
+git commit -m "Add initial feature or describe your changes"
+```
+
+#### Push Your Commits to GitHub
+
+This command uploads your saved changes to your remote GitHub repository.
+
+```bash
+git push
+```
+
+Your new project is now set up correctly and any future work can be pushed directly to its own repository on GitHub.
+
+```
+```
 
 ### **Part 1: How to Upload a Brand New Project to GitHub**
 
